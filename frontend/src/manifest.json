@@ -1,0 +1,19 @@
+{
+  "name": "粉丝应援助手",
+  "appid": "__UNI__VB_FANS",
+  "description": "小范围粉丝群微博互动辅助工具",
+  "versionName": "0.1.0",
+  "versionCode": "100",
+  "transformPx": false,
+  "mp-weixin": {
+    "appid": "",
+    "setting": {
+      "urlCheck": false,
+      "es6": true,
+      "minified": true
+    },
+    "usingComponents": true,
+    "permission": {}
+  },
+  "vueVersion": "3"
+}
