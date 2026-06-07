@@ -17,12 +17,18 @@ onMounted(() => {
 
 <template>
   <view class="page-container">
-    <view class="card mb-4">
-      <text class="text-sm text-white/70">
-        请在下方页面完成微博授权。授权成功后返回「我的」页面即可使用发评论功能。
-      </text>
+    <view class="card card-cute">
+      <view class="card-inner">
+        <text class="empty-emoji">🔗</text>
+        <text class="text-body-sm text-block">
+          请在下方页面完成微博授权。授权成功后返回「我的」页面，就可以使用发评论功能啦～
+        </text>
+      </view>
     </view>
     <web-view v-if="authUrl" :src="authUrl" />
-    <view v-else class="card text-center text-sm text-white/50">暂无授权链接</view>
+    <view v-else class="card empty-state">
+      <text class="empty-emoji">😿</text>
+      <text class="text-caption">暂无授权链接</text>
+    </view>
   </view>
 </template>

@@ -6,6 +6,7 @@
     "dev:mp-weixin": "uni -p mp-weixin",
     "build:mp-weixin": "uni build -p mp-weixin",
     "dev:h5": "uni",
+    "icons:tab": "python3 scripts/generate-tab-icons.py",
     "type-check": "vue-tsc --noEmit"
   },
   "dependencies": {

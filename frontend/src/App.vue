@@ -7,11 +7,5 @@ onLaunch(() => {
 </script>
 
 <style lang="scss">
-@import './styles/tailwind.css';
-
-page {
-  background-color: #1a1a2e;
-  color: #f5f5f5;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-}
+@import './styles/theme.css';
 </style>

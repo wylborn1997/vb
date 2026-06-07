@@ -13,30 +13,26 @@ defineEmits<{ click: [] }>()
 </script>
 
 <template>
-  <view class="card mb-3 active:opacity-80" @tap="$emit('click')">
-    <view class="mb-2 flex items-center gap-2">
-      <image
-        v-if="item.star?.avatar"
-        :src="item.star.avatar"
-        class="h-8 w-8 rounded-full"
-        mode="aspectFill"
-      />
-      <view v-else class="flex h-8 w-8 items-center justify-center rounded-full bg-brand/30 text-xs">
-        星
+  <view class="card card-cute" @tap="$emit('click')">
+    <view class="card-inner feed-header">
+      <view class="avatar-ring">
+        <image
+          v-if="item.star?.avatar"
+          :src="item.star.avatar"
+          class="avatar-img"
+          mode="aspectFill"
+        />
+        <view v-else class="avatar-fallback">✨</view>
       </view>
-      <text class="text-sm font-medium text-white">{{ item.star?.nickname || '明星' }}</text>
-      <text class="ml-auto text-xs text-white/40">{{ item.publishTime }}</text>
+      <view class="feed-meta">
+        <text class="text-accent-sm text-block">{{ item.star?.nickname || '明星' }}</text>
+        <text class="text-caption text-block">{{ item.publishTime }}</text>
+      </view>
+      <text class="badge-new">新动态</text>
     </view>
-    <text class="line-clamp-3 text-sm leading-relaxed text-white/80">{{ item.content }}</text>
-    <text class="mt-2 block text-xs text-brand">查看详情 · 快捷评论</text>
+    <text class="card-inner text-body-sm line-clamp-3 text-block">{{ item.content }}</text>
+    <view class="card-inner feed-action">
+      <text>💖 查看详情 · 快捷评论</text>
+    </view>
   </view>
 </template>
-
-<style scoped>
-.line-clamp-3 {
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-</style>

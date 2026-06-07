@@ -2,6 +2,8 @@
 import { ref, onMounted } from 'vue'
 import { feedApi, type FeedItem } from '@/api/modules'
 import FeedCard from '@/components/FeedCard.vue'
+import PageHeader from '@/components/PageHeader.vue'
+import EmptyState from '@/components/EmptyState.vue'
 
 const feeds = ref<FeedItem[]>([])
 const loading = ref(true)
@@ -27,17 +29,23 @@ function goComment() {
 
 <template>
   <view class="page-container">
-    <view class="mb-4">
-      <text class="text-xl font-bold text-white">最新动态</text>
-      <text class="mt-1 block text-xs text-white/50">明星发博提醒 · 分钟级更新</text>
+    <PageHeader
+      emoji="🌸"
+      title="最新动态"
+      subtitle="明星发博提醒 · 分钟级更新"
+    />
+
+    <view v-if="loading" class="card empty-state">
+      <text class="empty-emoji">⏳</text>
+      <text class="text-caption">加载中...</text>
     </view>
 
-    <view v-if="loading" class="card text-center text-sm text-white/50">加载中...</view>
-
-    <view v-else-if="feeds.length === 0" class="card text-center">
-      <text class="text-sm text-white/50">暂无新动态</text>
-      <text class="mt-2 block text-xs text-white/30">管理员配置明星后，新博将在此展示</text>
-    </view>
+    <EmptyState
+      v-else-if="feeds.length === 0"
+      emoji="🐣"
+      title="暂无新动态"
+      hint="管理员配置明星后，新博将在这里出现哦～"
+    />
 
     <FeedCard
       v-for="item in feeds"
@@ -46,8 +54,8 @@ function goComment() {
       @click="goDetail(item)"
     />
 
-    <view class="fixed bottom-24 left-4 right-4">
-      <view class="btn-primary" @tap="goComment">进入控评助手</view>
+    <view class="fab-bar">
+      <view class="btn-primary" @tap="goComment">✨ 进入控评助手</view>
     </view>
   </view>
 </template>

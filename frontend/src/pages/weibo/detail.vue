@@ -8,6 +8,7 @@ const content = ref('')
 const commentText = ref('')
 const templates = ref<TemplateItem[]>([])
 const sending = ref(false)
+const activeTemplateId = ref<number | null>(null)
 
 onLoad((query) => {
   weiboId.value = (query?.id as string) || ''
@@ -26,6 +27,7 @@ onMounted(async () => {
 
 function applyTemplate(t: TemplateItem) {
   commentText.value = t.content
+  activeTemplateId.value = t.id
 }
 
 async function sendComment() {
@@ -36,8 +38,9 @@ async function sendComment() {
   sending.value = true
   try {
     await commentApi.send({ weiboId: weiboId.value, content: commentText.value })
-    uni.showToast({ title: '评论成功', icon: 'success' })
+    uni.showToast({ title: '评论成功 🎉', icon: 'success' })
     commentText.value = ''
+    activeTemplateId.value = null
   } catch (e) {
     uni.showToast({ title: (e as Error).message || '发送失败', icon: 'none' })
   } finally {
@@ -48,34 +51,37 @@ async function sendComment() {
 
 <template>
   <view class="page-container">
-    <view class="card mb-4">
-      <text class="text-sm leading-relaxed text-white/90">{{ content || '加载中...' }}</text>
+    <view class="card card-cute">
+      <view class="card-inner">
+        <text class="category-badge mb-2">📢 微博正文</text>
+        <text class="text-body-sm text-block">{{ content || '加载中...' }}</text>
+      </view>
     </view>
 
-    <view class="mb-3">
-      <text class="text-sm font-medium text-white">评论模板</text>
-    </view>
-    <scroll-view scroll-x class="mb-4 whitespace-nowrap">
+    <text class="section-label">💬 选择模板</text>
+    <scroll-view scroll-x class="tag-scroll">
       <view
         v-for="t in templates"
         :key="t.id"
-        class="mr-2 inline-block rounded-full bg-white/10 px-4 py-2 text-xs text-white/80"
+        :class="activeTemplateId === t.id ? 'tag-chip-active' : 'tag-chip'"
         @tap="applyTemplate(t)"
       >
         {{ t.title }}
       </view>
     </scroll-view>
 
+    <text class="section-label">✏️ 编辑评论</text>
     <textarea
       v-model="commentText"
-      class="input-field mb-4 min-h-24"
-      placeholder="编辑评论内容..."
+      class="input-field textarea-field"
+      placeholder="写下你的应援评论吧～"
+      placeholder-class="placeholder-muted"
       maxlength="140"
     />
 
-    <view class="fixed bottom-0 left-0 right-0 bg-surface-card p-4">
-      <view class="btn-primary" :class="{ 'opacity-50': sending }" @tap="sendComment">
-        {{ sending ? '发送中...' : '发送评论' }}
+    <view class="bottom-bar">
+      <view class="btn-primary" :class="{ disabled: sending }" @tap="sendComment">
+        {{ sending ? '发送中...' : '💖 发送评论' }}
       </view>
     </view>
   </view>

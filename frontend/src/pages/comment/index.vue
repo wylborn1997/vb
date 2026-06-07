@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { commentApi, type CommentItem } from '@/api/modules'
+import PageHeader from '@/components/PageHeader.vue'
 
 const weiboUrl = ref('')
 const keyword = ref('')
@@ -56,8 +57,8 @@ function copyLink(item: CommentItem) {
 function openWeibo(item: CommentItem) {
   copyLink(item)
   uni.showModal({
-    title: '打开微博',
-    content: '链接已复制，请打开微博 App 粘贴访问并手动点赞',
+    title: '打开微博 💖',
+    content: '链接已复制，请打开微博 App 粘贴访问并手动点赞～',
     showCancel: false,
   })
 }
@@ -65,37 +66,52 @@ function openWeibo(item: CommentItem) {
 
 <template>
   <view class="page-container">
-    <view class="card mb-4">
-      <input
-        v-model="weiboUrl"
-        class="input-field mb-3"
-        placeholder="粘贴微博链接或 ID"
-      />
-      <input
-        v-model="keyword"
-        class="input-field mb-3"
-        placeholder="关键词过滤（可选）"
-      />
-      <view class="btn-primary" @tap="loadComments(true)">
-        {{ loading ? '加载中...' : '加载评论' }}
+    <PageHeader
+      emoji="🔍"
+      title="控评助手"
+      subtitle="找到目标评论，一键跳转去点赞"
+    />
+
+    <view class="card card-cute">
+      <view class="card-inner">
+        <text class="section-label">🔗 微博链接</text>
+        <input
+          v-model="weiboUrl"
+          class="input-field"
+          placeholder="粘贴微博链接或 ID"
+          placeholder-class="placeholder-muted"
+        />
+        <text class="section-label">🏷️ 关键词过滤</text>
+        <input
+          v-model="keyword"
+          class="input-field input-field-last"
+          placeholder="应援口号、话题（可选）"
+          placeholder-class="placeholder-muted"
+        />
+        <view class="btn-primary" @tap="loadComments(true)">
+          {{ loading ? '加载中...' : '🚀 加载评论' }}
+        </view>
       </view>
     </view>
 
-    <view v-for="item in comments" :key="item.id" class="card mb-3">
-      <view class="mb-1 flex items-center justify-between">
-        <text class="text-xs text-brand">{{ item.userName }}</text>
-        <text class="text-xs text-white/40">{{ item.createdAt }}</text>
+    <view v-for="item in comments" :key="item.id" class="card">
+      <view class="comment-header">
+        <view class="comment-user">
+          <view class="status-dot" />
+          <text class="text-accent-sm">{{ item.userName }}</text>
+        </view>
+        <text class="text-caption">{{ item.createdAt }}</text>
       </view>
-      <text class="text-sm text-white/85">{{ item.content }}</text>
-      <view v-if="item.hasImage" class="mt-1 text-xs text-white/40">[含图片/表情]</view>
-      <view class="mt-3 flex gap-2">
-        <view class="btn-secondary flex-1 text-xs" @tap="copyLink(item)">复制链接</view>
-        <view class="btn-primary flex-1 text-xs" @tap="openWeibo(item)">打开微博</view>
+      <text class="text-body-sm text-block">{{ item.content }}</text>
+      <view v-if="item.hasImage" class="category-badge">📷 含图片/表情</view>
+      <view class="btn-row">
+        <view class="btn-secondary btn-secondary-sm" @tap="copyLink(item)">复制链接</view>
+        <view class="btn-primary btn-primary-inline" @tap="openWeibo(item)">打开微博</view>
       </view>
     </view>
 
-    <view v-if="hasMore" class="btn-secondary mb-8 text-center text-sm" @tap="loadMore">
-      加载更多
+    <view v-if="hasMore" class="btn-ghost text-center" @tap="loadMore">
+      加载更多 ↓
     </view>
   </view>
 </template>

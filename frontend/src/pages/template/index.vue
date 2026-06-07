@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { templateApi, type TemplateItem } from '@/api/modules'
+import PageHeader from '@/components/PageHeader.vue'
+import EmptyState from '@/components/EmptyState.vue'
 
 const templates = ref<TemplateItem[]>([])
 const loading = ref(true)
@@ -18,7 +20,7 @@ async function load() {
 
 function addTemplate() {
   uni.showModal({
-    title: '新建模板',
+    title: '新建模板 ✏️',
     editable: true,
     placeholderText: '输入模板内容',
     success: async (res) => {
@@ -36,21 +38,31 @@ function addTemplate() {
 
 <template>
   <view class="page-container">
-    <view class="mb-4 flex items-center justify-between">
-      <text class="text-lg font-bold text-white">评论模板</text>
-      <view class="rounded-full bg-brand px-4 py-1 text-xs text-white" @tap="addTemplate">+ 新建</view>
+    <view class="header-row">
+      <view class="header-row-main">
+        <PageHeader emoji="💬" title="评论模板" subtitle="预设应援文案，一键发送" />
+      </view>
+      <view class="btn-primary btn-primary-sm" @tap="addTemplate">+ 新建</view>
     </view>
 
-    <view v-if="loading" class="card text-center text-sm text-white/50">加载中...</view>
-
-    <view v-for="t in templates" :key="t.id" class="card mb-3">
-      <text class="mb-1 block text-sm font-medium text-brand">{{ t.title }}</text>
-      <text class="text-sm text-white/80">{{ t.content }}</text>
-      <text class="mt-2 block text-xs text-white/30">{{ t.category }}</text>
+    <view v-if="loading" class="card empty-state">
+      <text class="empty-emoji">⏳</text>
+      <text class="text-caption">加载中...</text>
     </view>
 
-    <view v-if="!loading && templates.length === 0" class="card text-center text-sm text-white/50">
-      暂无模板，点击右上角新建
+    <view v-for="t in templates" :key="t.id" class="card card-cute">
+      <view class="card-inner">
+        <text class="text-accent-sm text-block mb-2">{{ t.title }}</text>
+        <text class="text-body-sm text-block">{{ t.content }}</text>
+        <text class="category-badge">{{ t.category }}</text>
+      </view>
     </view>
+
+    <EmptyState
+      v-if="!loading && templates.length === 0"
+      emoji="📝"
+      title="还没有模板哦"
+      hint="点击右上角新建你的第一条应援文案～"
+    />
   </view>
 </template>

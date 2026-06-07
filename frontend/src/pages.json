@@ -4,70 +4,70 @@
       "path": "pages/index/index",
       "style": {
         "navigationBarTitleText": "应援助手",
-        "navigationBarBackgroundColor": "#1a1a2e",
-        "navigationBarTextStyle": "white"
+        "navigationBarBackgroundColor": "#FFF5F8",
+        "navigationBarTextStyle": "black"
       }
     },
     {
       "path": "pages/weibo/detail",
       "style": {
         "navigationBarTitleText": "微博详情",
-        "navigationBarBackgroundColor": "#1a1a2e",
-        "navigationBarTextStyle": "white"
+        "navigationBarBackgroundColor": "#FFF5F8",
+        "navigationBarTextStyle": "black"
       }
     },
     {
       "path": "pages/comment/index",
       "style": {
         "navigationBarTitleText": "控评助手",
-        "navigationBarBackgroundColor": "#1a1a2e",
-        "navigationBarTextStyle": "white"
+        "navigationBarBackgroundColor": "#FFF5F8",
+        "navigationBarTextStyle": "black"
       }
     },
     {
       "path": "pages/template/index",
       "style": {
         "navigationBarTitleText": "评论模板",
-        "navigationBarBackgroundColor": "#1a1a2e",
-        "navigationBarTextStyle": "white"
+        "navigationBarBackgroundColor": "#FFF5F8",
+        "navigationBarTextStyle": "black"
       }
     },
     {
       "path": "pages/mine/index",
       "style": {
         "navigationBarTitleText": "我的",
-        "navigationBarBackgroundColor": "#1a1a2e",
-        "navigationBarTextStyle": "white"
+        "navigationBarBackgroundColor": "#FFF5F8",
+        "navigationBarTextStyle": "black"
       }
     },
     {
       "path": "pages/admin/settings",
       "style": {
         "navigationBarTitleText": "管理设置",
-        "navigationBarBackgroundColor": "#1a1a2e",
-        "navigationBarTextStyle": "white"
+        "navigationBarBackgroundColor": "#FFF5F8",
+        "navigationBarTextStyle": "black"
       }
     },
     {
       "path": "pages/auth/weibo",
       "style": {
         "navigationBarTitleText": "绑定微博",
-        "navigationBarBackgroundColor": "#1a1a2e",
-        "navigationBarTextStyle": "white"
+        "navigationBarBackgroundColor": "#FFF5F8",
+        "navigationBarTextStyle": "black"
       }
     }
   ],
   "globalStyle": {
-    "navigationBarTextStyle": "white",
+    "navigationBarTextStyle": "black",
     "navigationBarTitleText": "粉丝应援助手",
-    "navigationBarBackgroundColor": "#1a1a2e",
-    "backgroundColor": "#1a1a2e"
+    "navigationBarBackgroundColor": "#FFF5F8",
+    "backgroundColor": "#FFF5F8"
   },
   "tabBar": {
-    "color": "#999999",
-    "selectedColor": "#ff6b35",
-    "backgroundColor": "#16213e",
-    "borderStyle": "black",
+    "color": "#C9A8A8",
+    "selectedColor": "#FF6B9D",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "white",
     "list": [
       {
         "pagePath": "pages/index/index",
