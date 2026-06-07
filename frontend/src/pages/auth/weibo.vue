@@ -1,11 +1,19 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { onLoad } from '@dcloudio/uni-app'
+import { onLoad, onShow } from '@dcloudio/uni-app'
+import { useUserStore } from '@/stores/user'
 
+const userStore = useUserStore()
 const authUrl = ref('')
 
 onLoad((query) => {
   authUrl.value = decodeURIComponent((query?.url as string) || '')
+})
+
+onShow(() => {
+  if (userStore.isLoggedIn) {
+    userStore.fetchProfile()
+  }
 })
 
 onMounted(() => {

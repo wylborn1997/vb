@@ -5,6 +5,24 @@ export interface Star {
   userId: string
   nickname: string
   avatar: string
+  enabled?: number | boolean
+}
+
+export interface AdminStatus {
+  monitorEnabled: boolean
+  monitorConfigured: boolean
+  monitorRunning: boolean
+  monitorLastRunAt: string | null
+  notifyConfigured: boolean
+  subscribeTemplateId: string | null
+  starCount: number
+  adminRestricted: boolean
+}
+
+export interface NotifyConfig {
+  templateId: string | null
+  notifyConfigured: boolean
+  subscribed: boolean
 }
 
 export interface FeedItem {
@@ -42,14 +60,37 @@ export interface TemplateItem {
   category: string
 }
 
+export interface UserProfile {
+  userId: number
+  openid: string
+  weiboBound: boolean
+  weiboUid: string
+  weiboTokenExpiresAt: string | null
+}
+
 export const authApi = {
   wechatLogin: (code: string) =>
     request<{ token: string }>({ url: '/auth/wechat', method: 'POST', data: { code }, auth: false }),
+  getProfile: () => request<UserProfile>({ url: '/auth/me' }),
   getWeiboAuthUrl: () => request<{ url: string }>({ url: '/auth/weibo/url' }),
+  unbindWeibo: () => request<{ success: boolean }>({ url: '/auth/weibo/unbind', method: 'POST' }),
 }
 
 export const starApi = {
   list: () => request<Star[]>({ url: '/stars' }),
+  listManage: () => request<Star[]>({ url: '/stars/manage' }),
+  create: (data: { userId: string; nickname: string; avatar?: string }) =>
+    request<Star>({ url: '/stars', method: 'POST', data }),
+  update: (id: number, data: Partial<{ nickname: string; avatar: string; enabled: boolean }>) =>
+    request<Star>({ url: `/stars/${id}`, method: 'PUT', data }),
+  remove: (id: number) => request<{ success: boolean }>({ url: `/stars/${id}`, method: 'DELETE' }),
+}
+
+export const adminApi = {
+  status: () => request<AdminStatus>({ url: '/admin/status' }),
+  setMonitor: (enabled: boolean) =>
+    request<{ enabled: boolean }>({ url: '/admin/monitor', method: 'PATCH', data: { enabled } }),
+  runMonitor: () => request<AdminStatus>({ url: '/admin/monitor/run', method: 'POST' }),
 }
 
 export const feedApi = {
@@ -80,6 +121,7 @@ export const templateApi = {
 }
 
 export const notifyApi = {
+  getConfig: () => request<NotifyConfig>({ url: '/notify/config' }),
   subscribe: (templateIds: string[]) =>
-    request<void>({ url: '/notify/subscribe', method: 'POST', data: { templateIds } }),
+    request<{ success: boolean }>({ url: '/notify/subscribe', method: 'POST', data: { templateIds } }),
 }

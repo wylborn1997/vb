@@ -7,6 +7,7 @@ import weiboRoutes from './routes/weibo.js'
 import commentRoutes from './routes/comments.js'
 import templateRoutes from './routes/templates.js'
 import notifyRoutes from './routes/notify.js'
+import adminRoutes from './routes/admin.js'
 import { authMiddleware } from './middleware/index.js'
 import { initSchema } from './db/index.js'
 import { startMonitorJob } from './jobs/monitor.js'
@@ -29,7 +30,8 @@ app.use('/feed', feedRoutes)
 app.use('/weibo', weiboRoutes)
 app.use('/comments', commentRoutes)
 app.use('/templates', templateRoutes)
-app.use('/notify', authMiddleware, notifyRoutes)
+app.use('/notify', notifyRoutes)
+app.use('/admin', adminRoutes)
 
 app.listen(env.port, () => {
   console.log(`Server running at http://localhost:${env.port}`)

@@ -54,9 +54,22 @@ export function initSchema() {
       user_id INTEGER NOT NULL,
       template_id TEXT NOT NULL,
       created_at TEXT DEFAULT (datetime('now')),
-      FOREIGN KEY (user_id) REFERENCES users(id)
+      FOREIGN KEY (user_id) REFERENCES users(id),
+      UNIQUE(user_id, template_id)
+    );
+
+    CREATE TABLE IF NOT EXISTS app_settings (
+      key TEXT PRIMARY KEY,
+      value TEXT NOT NULL
     );
   `)
+
+  db.prepare("INSERT OR IGNORE INTO app_settings (key, value) VALUES ('monitor_enabled', '1')").run()
+  db.prepare("INSERT OR IGNORE INTO app_settings (key, value) VALUES ('monitor_last_run_at', '')").run()
+
+  db.exec(
+    'CREATE UNIQUE INDEX IF NOT EXISTS idx_subscriptions_user_template ON subscriptions(user_id, template_id)'
+  )
 
   const count = db.prepare('SELECT COUNT(*) as c FROM stars').get() as { c: number }
   if (count.c === 0) {

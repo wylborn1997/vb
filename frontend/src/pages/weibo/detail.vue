@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { onLoad } from '@dcloudio/uni-app'
+import { onLoad, onShow } from '@dcloudio/uni-app'
 import { weiboApi, commentApi, templateApi, type TemplateItem } from '@/api/modules'
+import { useUserStore } from '@/stores/user'
 
+const userStore = useUserStore()
 const weiboId = ref('')
 const content = ref('')
 const commentText = ref('')
@@ -12,6 +14,12 @@ const activeTemplateId = ref<number | null>(null)
 
 onLoad((query) => {
   weiboId.value = (query?.id as string) || ''
+})
+
+onShow(() => {
+  if (userStore.isLoggedIn) {
+    userStore.fetchProfile()
+  }
 })
 
 onMounted(async () => {
@@ -30,7 +38,34 @@ function applyTemplate(t: TemplateItem) {
   activeTemplateId.value = t.id
 }
 
+function ensureWeiboReady(): boolean {
+  if (!userStore.isLoggedIn) {
+    uni.showModal({
+      title: '需要登录',
+      content: '发评论需先微信登录并绑定微博账号',
+      confirmText: '去登录',
+      success: (res) => {
+        if (res.confirm) uni.switchTab({ url: '/pages/mine/index' })
+      },
+    })
+    return false
+  }
+  if (!userStore.weiboBound) {
+    uni.showModal({
+      title: '需要绑定微博',
+      content: '发评论需使用你的微博授权，请先在「我的」页面绑定',
+      confirmText: '去绑定',
+      success: (res) => {
+        if (res.confirm) uni.switchTab({ url: '/pages/mine/index' })
+      },
+    })
+    return false
+  }
+  return true
+}
+
 async function sendComment() {
+  if (!ensureWeiboReady()) return
   if (!commentText.value.trim()) {
     uni.showToast({ title: '请输入评论内容', icon: 'none' })
     return
@@ -42,7 +77,19 @@ async function sendComment() {
     commentText.value = ''
     activeTemplateId.value = null
   } catch (e) {
-    uni.showToast({ title: (e as Error).message || '发送失败', icon: 'none' })
+    const msg = (e as Error).message || '发送失败'
+    if (msg.includes('绑定') || msg.includes('过期')) {
+      uni.showModal({
+        title: '微博授权',
+        content: msg,
+        confirmText: '去绑定',
+        success: (res) => {
+          if (res.confirm) uni.switchTab({ url: '/pages/mine/index' })
+        },
+      })
+    } else {
+      uni.showToast({ title: msg, icon: 'none' })
+    }
   } finally {
     sending.value = false
   }
@@ -55,6 +102,12 @@ async function sendComment() {
       <view class="card-inner">
         <text class="category-badge mb-2">📢 微博正文</text>
         <text class="text-body-sm text-block">{{ content || '加载中...' }}</text>
+      </view>
+    </view>
+
+    <view v-if="userStore.isLoggedIn && !userStore.weiboBound" class="card card-cute">
+      <view class="card-inner">
+        <text class="text-body-sm text-block">⚠️ 尚未绑定微博，无法发评论。请前往「我的」页面完成绑定。</text>
       </view>
     </view>
 

@@ -164,7 +164,10 @@
 | `/auth/wechat` | POST | 微信小程序 code 换 session |
 | `/auth/weibo/url` | GET | 生成微博 OAuth 授权 URL |
 | `/auth/weibo/callback` | GET | OAuth 回调，存 token |
-| `/stars` | GET/POST | 明星列表（管理员可增删） |
+| `/stars` | GET/POST/PUT/DELETE | 明星列表与管理（写操作需管理员） |
+| `/admin/status` | GET | 监测与推送配置状态 |
+| `/admin/monitor` | PATCH | 开启/关闭发博监测 |
+| `/notify/config` | GET | 订阅模板与当前用户订阅状态 |
 | `/feed/latest` | GET | 最新发博提醒列表 |
 | `/weibo/{id}` | GET | 微博详情 |
 | `/comments` | GET | 评论列表（分页 + 关键词） |
@@ -191,21 +194,22 @@
 
 ### Phase 1 · 基础框架（1～2 周）
 
-- [ ] uni-app 项目初始化 + Tailwind 配置
-- [ ] 微信小程序登录
-- [ ] 后端骨架 + 数据库
+- [x] uni-app 项目初始化 + 样式主题
+- [x] 微信小程序登录（真实 `jscode2session`，未配置密钥时 mock）
+- [x] 后端骨架 + 数据库
 
 ### Phase 2 · 核心能力（2～3 周）
 
-- [ ] 微博 OAuth 绑定
-- [ ] 评论模板 + 发评论
-- [ ] 微博详情页、控评页（读评论 + 过滤）
+- [x] 微博 OAuth 绑定（后端 OAuth + 前端绑定/解绑/状态刷新）
+- [x] 评论模板 + 发评论（真实调用微博 `comments/create`）
+- [x] 微博详情页、控评页（真实读评论 + 关键词过滤）
+- [x] 微信真实登录（`jscode2session`）
 
 ### Phase 3 · 提醒闭环（1～2 周）
 
-- [ ] 明星配置 + 发博监测定时任务
-- [ ] 微信订阅消息推送
-- [ ] 管理员设置页
+- [x] 明星配置 + 发博监测定时任务（每 5 分钟，Cookie/Token 双通道）
+- [x] 微信订阅消息推送（新博入库后推送给已订阅用户）
+- [x] 管理员设置页（增删明星、监测开关、立即检测）
 
 ### Phase 4 · 打磨上线
 
@@ -274,7 +278,16 @@ npm run build:mp-weixin
 # 用微信开发者工具打开 frontend/dist/build/mp-weixin
 ```
 
-> 在 `frontend/src/manifest.json` 填入微信小程序 appid；在 `server/.env` 填入微博/微信密钥。
+> 在 `frontend/src/manifest.json` 的 `mp-weixin.appid` 填入微信小程序 AppID（须与 `server/.env` 的 `WECHAT_APPID` 一致）；在 `server/.env` 填入微信/微博密钥及监测 Cookie。未配置微信密钥时，后端会使用 mock 登录便于本地调试。
+
+**Phase 3 额外配置：**
+
+| 变量 | 说明 |
+|------|------|
+| `WEIBO_MONITOR_COOKIE` 或 `WEIBO_MONITOR_ACCESS_TOKEN` | 发博监测数据源（专用微博账号） |
+| `WECHAT_SUBSCRIBE_TEMPLATE_ID` | 微信公众平台申请的订阅消息模板 ID |
+| `WECHAT_SUBSCRIBE_FIELD_*` | 模板字段名，须与公众平台模板一致 |
+| `ADMIN_OPENIDS` | 管理员 openid 白名单（逗号分隔，留空则不限制） |
 
 ## 十二、参考链接
 

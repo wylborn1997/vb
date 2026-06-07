@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { onShow } from '@dcloudio/uni-app'
 import { commentApi, type CommentItem } from '@/api/modules'
+import { useUserStore } from '@/stores/user'
 import PageHeader from '@/components/PageHeader.vue'
 
+const userStore = useUserStore()
 const weiboUrl = ref('')
 const keyword = ref('')
 const comments = ref<CommentItem[]>([])
@@ -10,12 +13,45 @@ const loading = ref(false)
 const hasMore = ref(false)
 const page = ref(1)
 
+onShow(() => {
+  if (userStore.isLoggedIn) {
+    userStore.fetchProfile()
+  }
+})
+
 function extractWeiboId(url: string): string {
   const match = url.match(/(\d{10,})/)
   return match?.[1] || url.trim()
 }
 
+function ensureWeiboReady(): boolean {
+  if (!userStore.isLoggedIn) {
+    uni.showModal({
+      title: '需要登录',
+      content: '控评功能需先微信登录并绑定微博账号',
+      confirmText: '去登录',
+      success: (res) => {
+        if (res.confirm) uni.switchTab({ url: '/pages/mine/index' })
+      },
+    })
+    return false
+  }
+  if (!userStore.weiboBound) {
+    uni.showModal({
+      title: '需要绑定微博',
+      content: '读取评论需使用你的微博授权，请先在「我的」页面绑定',
+      confirmText: '去绑定',
+      success: (res) => {
+        if (res.confirm) uni.switchTab({ url: '/pages/mine/index' })
+      },
+    })
+    return false
+  }
+  return true
+}
+
 async function loadComments(reset = true) {
+  if (!ensureWeiboReady()) return
   if (!weiboUrl.value.trim()) {
     uni.showToast({ title: '请输入微博链接', icon: 'none' })
     return
@@ -35,7 +71,19 @@ async function loadComments(reset = true) {
     comments.value = reset ? res.list : [...comments.value, ...res.list]
     hasMore.value = res.hasMore
   } catch (e) {
-    uni.showToast({ title: (e as Error).message || '加载失败', icon: 'none' })
+    const msg = (e as Error).message || '加载失败'
+    if (msg.includes('绑定') || msg.includes('过期')) {
+      uni.showModal({
+        title: '微博授权',
+        content: msg,
+        confirmText: '去绑定',
+        success: (res) => {
+          if (res.confirm) uni.switchTab({ url: '/pages/mine/index' })
+        },
+      })
+    } else {
+      uni.showToast({ title: msg, icon: 'none' })
+    }
   } finally {
     loading.value = false
   }
@@ -71,6 +119,12 @@ function openWeibo(item: CommentItem) {
       title="控评助手"
       subtitle="找到目标评论，一键跳转去点赞"
     />
+
+    <view v-if="userStore.isLoggedIn && !userStore.weiboBound" class="card card-cute">
+      <view class="card-inner">
+        <text class="text-body-sm text-block">⚠️ 尚未绑定微博，无法加载评论。请前往「我的」页面完成绑定。</text>
+      </view>
+    </view>
 
     <view class="card card-cute">
       <view class="card-inner">

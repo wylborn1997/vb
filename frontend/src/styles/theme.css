@@ -413,6 +413,18 @@ page {
   gap: 24rpx;
 }
 
+.star-row-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.star-row-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+  flex-shrink: 0;
+}
+
 .link-arrow {
   font-size: 32rpx;
   color: #ff6b9d;
