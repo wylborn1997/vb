@@ -4,6 +4,7 @@ import { onShow } from '@dcloudio/uni-app'
 import { useUserStore } from '@/stores/user'
 import { authApi, notifyApi } from '@/api/modules'
 import PageHeader from '@/components/PageHeader.vue'
+import { showLoginError } from '@/utils/dev-hints'
 
 const userStore = useUserStore()
 const subscribeTemplateId = ref<string | null>(null)
@@ -89,7 +90,7 @@ async function handleLogin() {
     await userStore.loginWithWechat()
     uni.showToast({ title: '登录成功 🎉', icon: 'success' })
   } catch (e) {
-    uni.showToast({ title: (e as Error).message || '登录失败', icon: 'none' })
+    showLoginError(e)
   }
 }
 

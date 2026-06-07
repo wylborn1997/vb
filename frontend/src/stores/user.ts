@@ -3,6 +3,13 @@ import { ref, computed } from 'vue'
 import { authApi } from '@/api/modules'
 import { STORAGE_KEYS } from '@/utils/constants'
 
+function normalizeLoginError(err: unknown, fallback: string): string {
+  if (typeof err === 'string') return err
+  if (err instanceof Error && err.message) return err.message
+  const raw = err as { errMsg?: string; message?: string }
+  return raw?.errMsg || raw?.message || fallback
+}
+
 export const useUserStore = defineStore('user', () => {
   const token = ref<string>(uni.getStorageSync(STORAGE_KEYS.TOKEN) || '')
   const weiboBound = ref(false)
@@ -13,9 +20,20 @@ export const useUserStore = defineStore('user', () => {
   const isLoggedIn = computed(() => !!token.value)
 
   async function loginWithWechat() {
-    const loginRes = await uni.login({ provider: 'weixin' })
-    const code = loginRes.code
-    if (!code) throw new Error('微信登录失败')
+    let loginRes: UniApp.LoginRes
+    try {
+      loginRes = await uni.login()
+    } catch (e) {
+      throw new Error(
+        normalizeLoginError(e, '微信 login 调用失败，请确认 manifest.json 已填写小程序 AppID')
+      )
+    }
+
+    const code = loginRes?.code
+    if (!code) {
+      throw new Error('未获取到微信 code，请在开发者工具填写 AppID 或使用真机调试')
+    }
+
     const res = await authApi.wechatLogin(code)
     token.value = res.token
     uni.setStorageSync(STORAGE_KEYS.TOKEN, res.token)

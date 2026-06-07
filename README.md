@@ -278,6 +278,39 @@ npm run build:mp-weixin
 # 用微信开发者工具打开 frontend/dist/build/mp-weixin
 ```
 
+**若登录报 `url not in domain list`：**
+
+| 方式 | 能否用 127.0.0.1 | 说明 |
+|------|------------------|------|
+| 开发者工具 **模拟器** | ✅ | 详情→本地设置→勾选「不校验合法域名」后重新编译 |
+| **真机调试** | ❌ 需局域网 IP | 用工具栏「真机调试」而非「预览」；同样勾选不校验合法域名 |
+| 扫码 **预览** | ❌ 需 HTTPS 域名 | 真机强制校验域名，必须配置公众平台 request 合法域名 |
+
+**真机调试（推荐，本地开发）：**
+
+```bash
+# 1. 查电脑局域网 IP（Mac 示例）
+ipconfig getifaddr en0
+
+# 2. frontend/.env
+VITE_API_BASE_URL=http://192.168.x.x:3000
+
+# 3. 重新编译，手机与电脑同一 WiFi
+cd frontend && npm run build:mp-weixin:lan
+
+# 或分步：npm run env:lan && npm run build:mp-weixin
+
+# 4. 开发者工具点「真机调试」（不要点「预览」）
+```
+
+**扫码预览（需公网 HTTPS）：**
+
+1. 用 cpolar / ngrok 等把 `3000` 端口映射为 `https://你的域名`
+2. [微信公众平台](https://mp.weixin.qq.com/) → 开发管理 → 开发设置 → **服务器域名** → request 合法域名填入该域名
+3. `frontend/.env` 中 `VITE_API_BASE_URL=https://你的域名`，重新编译后再预览
+
+> 构建命令会自动把 `project.private.config.json` 复制到 dist；**扫码预览不受该文件影响**，必须走 HTTPS 域名或改用真机调试。
+
 > 在 `frontend/src/manifest.json` 的 `mp-weixin.appid` 填入微信小程序 AppID（须与 `server/.env` 的 `WECHAT_APPID` 一致）；在 `server/.env` 填入微信/微博密钥及监测 Cookie。未配置微信密钥时，后端会使用 mock 登录便于本地调试。
 
 **Phase 3 额外配置：**
@@ -288,6 +321,29 @@ npm run build:mp-weixin
 | `WECHAT_SUBSCRIBE_TEMPLATE_ID` | 微信公众平台申请的订阅消息模板 ID |
 | `WECHAT_SUBSCRIBE_FIELD_*` | 模板字段名，须与公众平台模板一致 |
 | `ADMIN_OPENIDS` | 管理员 openid 白名单（逗号分隔，留空则不限制） |
+
+### 微博 OAuth 绑定（发评论 / 读评论必配）
+
+1. 打开 [微博开放平台](https://open.weibo.com/) → 登录 → **管理中心** → **创建应用**（类型选「网页应用」或「移动应用」均可，需支持 OAuth2）
+2. 创建后在应用详情页复制 **App Key**、**App Secret**
+3. 在应用 **授权设置** 里添加 **回调地址**（必须与下面 `WEIBO_REDIRECT_URI` 完全一致）：
+   - 电脑模拟器调试：`http://127.0.0.1:3000/auth/weibo/callback`
+   - **真机调试**（你当前场景）：`http://192.168.x.x:3000/auth/weibo/callback`（换成 `npm run env:lan` 输出的 IP）
+4. 编辑 `server/.env`：
+
+```env
+WEIBO_APP_KEY=你的AppKey
+WEIBO_APP_SECRET=你的AppSecret
+WEIBO_REDIRECT_URI=http://192.168.31.228:3000/auth/weibo/callback
+WEIBO_SERVER_IP=你的公网IP
+```
+
+> `WEIBO_SERVER_IP`：发评论时微博 API 要求的 `rip` 参数，填你服务器的公网 IP；本地可先填电脑局域网 IP 试跑，上线后改为服务器公网 IP。
+
+5. **重启后端**：`cd server && npm run dev`
+6. 小程序「我的」→ **绑定微博账号**，在 web-view 里完成授权
+
+> 真机绑定时，授权完成后微博会跳转到 `WEIBO_REDIRECT_URI`，手机必须能访问该地址，因此不能用 `localhost`，要用局域网 IP 或 HTTPS 域名。
 
 ## 十二、参考链接
 

@@ -4,7 +4,10 @@
   "private": true,
   "scripts": {
     "dev:mp-weixin": "uni -p mp-weixin",
-    "build:mp-weixin": "uni build -p mp-weixin",
+    "build:mp-weixin": "uni build -p mp-weixin && npm run sync:mp-config",
+    "env:lan": "bash scripts/setup-lan-env.sh",
+    "build:mp-weixin:lan": "npm run env:lan && npm run build:mp-weixin",
+    "sync:mp-config": "cp project.private.config.json dist/build/mp-weixin/ 2>/dev/null || true; cp project.private.config.json dist/dev/mp-weixin/ 2>/dev/null || true",
     "dev:h5": "uni",
     "icons:tab": "python3 scripts/generate-tab-icons.py",
     "type-check": "vue-tsc --noEmit"

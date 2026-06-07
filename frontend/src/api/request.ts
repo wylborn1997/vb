@@ -13,6 +13,19 @@ interface ApiResponse<T = unknown> {
   data: T
 }
 
+interface UniRequestFailError {
+  errMsg?: string
+  message?: string
+}
+
+function normalizeRequestError(err: unknown, fallback = '请求失败'): Error {
+  if (err instanceof Error && err.message) return err
+  if (typeof err === 'string') return new Error(err)
+  const raw = err as UniRequestFailError
+  const message = raw?.errMsg || raw?.message || fallback
+  return new Error(message)
+}
+
 export function request<T>(options: RequestOptions): Promise<T> {
   const { url, method = 'GET', data, auth = true } = options
   const header: Record<string, string> = {
@@ -36,9 +49,9 @@ export function request<T>(options: RequestOptions): Promise<T> {
           resolve(body.data)
           return
         }
-        reject(new Error(body?.message || '请求失败'))
+        reject(new Error(body?.message || `请求失败 (${res.statusCode})`))
       },
-      fail: (err) => reject(err),
+      fail: (err) => reject(normalizeRequestError(err, `无法连接后端 ${API_BASE_URL}`)),
     })
   })
 }

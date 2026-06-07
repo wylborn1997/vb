@@ -1,5 +1,6 @@
 import express from 'express'
 import cors from 'cors'
+import os from 'os'
 import authRoutes from './routes/auth.js'
 import starRoutes from './routes/stars.js'
 import feedRoutes from './routes/feed.js'
@@ -33,7 +34,20 @@ app.use('/templates', templateRoutes)
 app.use('/notify', notifyRoutes)
 app.use('/admin', adminRoutes)
 
-app.listen(env.port, () => {
-  console.log(`Server running at http://localhost:${env.port}`)
+function getLanAddresses() {
+  const ips: string[] = []
+  for (const nets of Object.values(os.networkInterfaces())) {
+    for (const net of nets || []) {
+      if (net.family === 'IPv4' && !net.internal) ips.push(net.address)
+    }
+  }
+  return ips
+}
+
+app.listen(env.port, '0.0.0.0', () => {
+  console.log(`Server running at http://127.0.0.1:${env.port}`)
+  for (const ip of getLanAddresses()) {
+    console.log(`局域网访问: http://${ip}:${env.port}  （真机调试请用此地址）`)
+  }
   startMonitorJob()
 })
